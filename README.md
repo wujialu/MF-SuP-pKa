@@ -8,6 +8,7 @@ Compared with Attentive FP, MF-SuP-pKa achieves **23.83%** and **20.12%** improv
 - ```weights/```
 - ```scripts/```
 ## Requirements
+- python 3.6
 - rdkit 2021.09.4
 - sklearn 0.24.2
 - torch 1.10.1
