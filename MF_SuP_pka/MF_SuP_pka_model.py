@@ -226,10 +226,10 @@ def MF_SuP_pka_model(times, task_name,
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--task_name", type=str, help="task name")
-    parser.add_argument("--type", type=str, help="task type(acid or base)")
-    parser.add_argument("--k_hop", type=int)
-    parser.add_argument("--pretrain_aug", type=bool, default=False)
+    parser.add_argument("--task_name", type=str, help="task name", default='pika_acidic_2750')
+    parser.add_argument("--type", type=str, help="task type(acid or base)", default='acid')
+    parser.add_argument("--k_hop", type=int, default=2)
+    parser.add_argument("--pretrain_aug", action='store_true', default=False)
     parser.add_argument("--stage", type=str, default='transfer')  # [before_transfer, transfer]
     args = parser.parse_args()
     MF_SuP_pka_model(times=10, task_name=args.task_name, acid_or_base=args.type,
