@@ -291,8 +291,8 @@ if __name__ == '__main__':
     parser.add_argument("--k_hop", type=int, default=2)
     parser.add_argument("--pretrain_aug", action='store_true', default=False)
     parser.add_argument("--stage", type=str, default='transfer')  # [before_transfer, transfer]
-    parser.add_argument("--mode", type=str, default='transfer')  # [train, eval]
-    parser.add_argument("--checkpoint", type=str, default=None)  # [train, eval]
+    parser.add_argument("--mode", type=str, default='train')  # [train, eval]
+    parser.add_argument("--checkpoint", type=str, default=None) 
 
     args = parser.parse_args()
 
