@@ -11,7 +11,7 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(script_dir, '..'))
 from MF_SuP_pka import build_dataset
 from MF_SuP_pka.MY_GNN import collate_molgraphs, EarlyStopping, run_a_train_epoch, run_an_eval_epoch_detail, \
-    set_random_seed, SuP_pka_Predictor
+    set_random_seed, SuP_pka_Predictor, load_pretrained_model
 
 import warnings
 
@@ -20,7 +20,7 @@ import argparse
 
 
 # fix parameters of model
-def MF_SuP_pka_model(times, task_name,
+def MF_SuP_pka_train(times, task_name,
                      number_layers=2,
                      num_timesteps=2,
                      graph_feat_size=200,
@@ -224,6 +224,66 @@ def MF_SuP_pka_model(times, task_name,
     result_pd.to_csv('../result/MF_SuP_pka/' + args['task_name'] + '_result.csv', index=False)
 
 
+def MF_SuP_pka_eval(task_name,
+                    number_layers=2,
+                    num_timesteps=2,
+                    graph_feat_size=200,
+                    dropout=0.1,
+                    acid_or_base=None,
+                    k=0,
+                    checkpoint=None):
+    args = {}
+    args['device'] = "cuda" if torch.cuda.is_available() else "cpu"
+    args['node_data_field'] = 'node'
+    args['edge_data_field'] = 'bond'
+    args['metric_name'] = 'r2'
+    # model parameter
+    args['num_epochs'] = 500
+    args['patience'] = 30
+    args['batch_size'] = 32
+    args['mode'] = 'higher'
+    args['in_feats'] = 40
+    args['number_layers'] = number_layers
+    args['num_timesteps'] = num_timesteps
+    args['graph_feat_size'] = graph_feat_size
+    args['drop_out'] = dropout
+    args['loop'] = True
+    # task name (model name)
+    args['task_name'] = task_name + f'_{k}_hop'
+    args['data_name'] = task_name
+    args['bin_g_attentivefp_path'] = '../data/MF_SuP_pka_graph_data/' + args['data_name'] + '_graph.bin'
+    args['group_path'] = '../data/MF_SuP_pka_graph_data/' + args['data_name'] + '_group.csv'
+    args['acid_or_base'] = acid_or_base
+    args['k'] = k
+    args['checkpoint'] = checkpoint
+
+    # load data
+    test_set, task_number = build_dataset.load_graph_from_csv_bin_for_external_test(
+        bin_g_attentivefp_path=args['bin_g_attentivefp_path'],
+        group_path=args['group_path'],)
+    print("Molecule graph is loaded!")
+
+    test_loader = DataLoader(dataset=test_set,
+                             batch_size=args['batch_size'],
+                             collate_fn=collate_molgraphs)
+
+    # load model
+    model = SuP_pka_Predictor(n_tasks=task_number,
+                              node_feat_size=args['in_feats'],
+                              edge_feat_size=10,
+                              num_layers=args['number_layers'],
+                              num_timesteps=args['num_timesteps'],
+                              graph_feat_size=args['graph_feat_size'],
+                              dropout=args['drop_out'],
+                              acid_or_base=args['acid_or_base'],
+                              k=args['k'])
+    load_pretrained_model(args['checkpoint'], model)
+    model.to(args.device)
+     
+    # make prediction and sava results
+    run_an_eval_epoch_detail(args, model, test_loader, out_path='../prediction/MF_SuP_pka/' + args['task_name'] + '.csv')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--task_name", type=str, help="task name", default='pka_acidic_2750')
@@ -232,7 +292,18 @@ if __name__ == '__main__':
     parser.add_argument("--pretrain_aug", action='store_true', default=False)
     parser.add_argument("--stage", type=str, default='transfer')  # [before_transfer, transfer]
     parser.add_argument("--mode", type=str, default='transfer')  # [train, eval]
+    parser.add_argument("--checkpoint", type=str, default=None)  # [train, eval]
 
     args = parser.parse_args()
-    MF_SuP_pka_train(times=10, task_name=args.task_name, acid_or_base=args.type,
-                     k=args.k_hop, pretrain_aug=args.pretrain_aug, stage=args.stage)
+
+    if args.mode == 'train':
+        MF_SuP_pka_train(times=10, task_name=args.task_name, acid_or_base=args.type,
+                        k=args.k_hop, pretrain_aug=args.pretrain_aug, stage=args.stage)
+    elif args.mode == 'eval':
+        if args.checkpoint is None:
+            if args.type == 'acid':
+                args.checkpoint = '../model/pka_acidic_2750_aug_transfer_2_hop_1_early_stop.pth'
+            elif args.type == 'base':
+                args.checkpoint = '../model/pka_basic_2992_aug_transfer_3_hop_1_early_stop.pth'
+        MF_SuP_pka_eval(task_name=args.task_name, acid_or_base=args.type,
+                        k=args.k_hop, checkpoint=args.checkpoint)

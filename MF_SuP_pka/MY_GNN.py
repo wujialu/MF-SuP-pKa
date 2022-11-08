@@ -1131,3 +1131,10 @@ class EarlyStopping(object):
         pretrained_dict = {k: v for k, v in pretrained_model['model_state_dict'].items() if k in model_dict}
         model_dict.update(pretrained_dict)
         model.load_state_dict(pretrained_dict, strict=False)
+
+def load_pretrained_model(pretrained_model, model):
+    pretrained_model = torch.load(pretrained_model, map_location=torch.device('cpu'))
+    model_dict = model.state_dict()
+    pretrained_dict = {k: v for k, v in pretrained_model['model_state_dict'].items() if k in model_dict}
+    model_dict.update(pretrained_dict)
+    model.load_state_dict(pretrained_dict, strict=False)
