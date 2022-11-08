@@ -231,6 +231,8 @@ if __name__ == '__main__':
     parser.add_argument("--k_hop", type=int, default=2)
     parser.add_argument("--pretrain_aug", action='store_true', default=False)
     parser.add_argument("--stage", type=str, default='transfer')  # [before_transfer, transfer]
+    parser.add_argument("--mode", type=str, default='transfer')  # [train, eval]
+
     args = parser.parse_args()
-    MF_SuP_pka_model(times=10, task_name=args.task_name, acid_or_base=args.type,
+    MF_SuP_pka_train(times=10, task_name=args.task_name, acid_or_base=args.type,
                      k=args.k_hop, pretrain_aug=args.pretrain_aug, stage=args.stage)
