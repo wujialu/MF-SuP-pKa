@@ -26,5 +26,7 @@ Compared with Attentive FP, MF-SuP-pKa achieves **23.83%** and **20.12%** improv
   ```python MF_SuP_pka_model.py --task_name pka_acidic_2750 --type acid --k_hop 2 --stage transfer --pretrain_aug```
 ## Reference
 If you use this code, please cite the following paper:
+
 Wu, J., Wan, Y., Wu, Z., Zhang, S., Cao, D., Hsieh, C. Y., & Hou, T. (2022). MF-SuP-pKa: multi-fidelity modeling with subgraph pooling mechanism for pKa prediction. Acta Pharmaceutica Sinica B.
+
 Links: https://www.sciencedirect.com/science/article/pii/S2211383522004622
