@@ -1,7 +1,7 @@
 # MF-SuP-pKa
 Pytorch implementation of “MF-SuP-pKa: multi-fidelity modeling with subgraph pooling mechanism for pKa prediction”
 ![image](https://github.com/wujialu/MF-SuP-pKa/blob/main/Graph%20abstract.png)
-- **MF-SuP-pka** is a novel pka prediction model that utilizes subgraph pooling, multi-fidelity learning and data augmentation.
+- **MF-SuP-pKa** is a novel pka prediction model that utilizes subgraph pooling, multi-fidelity learning and data augmentation.
 Compared with Attentive FP, MF-SuP-pKa achieves **23.83%** and **20.12%** improvement in terms of mean absolute error (MAE) on the DataWarrior acidic and basic sets, respectively.
 ## Overview 
 - ```AttentiveFP/```: the implementation of Attentive FP for pka prediction.
